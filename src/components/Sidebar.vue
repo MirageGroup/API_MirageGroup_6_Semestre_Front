@@ -22,7 +22,7 @@ function goToHome() {
 
 .sidebar {
     width: 300px;
-    background-color: #222629; 
+    background-color: #1A1A1A; 
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -37,12 +37,12 @@ function goToHome() {
 }
 
 .new-chat-btn {
-    background-color: transparent;
+    background-color: #222629;
     color: white;
     font-family: "Inter";
     font-weight: 400;
     text-align: left;
-    border: solid 1px #00B4F0;
+    border: none;
     padding: 15px;
     width: 100%;
     border-radius: 8px;
@@ -54,7 +54,7 @@ function goToHome() {
 }
 
 .new-chat-btn:hover {
-  background-color: #1A1A1A;
+  background-color: #454545;
 }
 
 </style>
