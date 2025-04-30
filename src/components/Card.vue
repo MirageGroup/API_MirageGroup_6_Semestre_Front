@@ -45,7 +45,7 @@ watch(
   border-radius: 12px;
   padding: 20px;
   margin-top: 1em;
-  background-color: #454545;
+  background-color: #222629;
   color: white;
   overflow: auto;
 }

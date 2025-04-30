@@ -10,18 +10,21 @@ const sendMessage = () => {
     inputText.value = ''; 
   }
 };
+
+
 </script>
 
 <template>
   <div class="input">
     <textarea v-model="inputText" placeholder="Digite aqui sua pergunta"></textarea>
     <button @click="sendMessage">
-      <img src="./icons/Arrow 1.svg" alt="Enviar">
+      <img src="./icons/send_button.svg" alt="Enviar">
     </button>
   </div>
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 .input {
     display: flex; 
@@ -30,16 +33,20 @@ const sendMessage = () => {
     padding: 5px; 
     padding-inline: 20px; 
     border-radius: 12px; 
-    background-color: #454545;
+    background-color: #222629;
 }
 
 textarea {
+    align-content: center;
+    font-family: "Inter";
+    font-weight: 200;
+    font-size: 22px;
     width: 100%;
-    height: 2.5em;
+    height: 3em;
     max-height: 12em; 
     border: none; 
     border-radius: 5px; 
-    background-color: #454545;
+    background-color: #222629;
     outline: none;
     color: #f0f0f0;
     resize: none;

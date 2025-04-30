@@ -10,6 +10,23 @@ const model1Response = ref("Aguardando resposta...");
 const model2Response = ref("Aguardando resposta...");
 const currentText = ref(route.query.text as string || "");
 
+// Função para simular o efeito de digitação
+const typeWriterEffect = (text: string, delay: number = 15) => {
+  let index = 0;
+  const displayedText = ref("");  // Ref<string>
+
+  const interval = setInterval(() => {
+    if (index < text.length) {
+      displayedText.value += text[index];  // Acessando o valor da ref com .value
+      index++;
+    } else {
+      clearInterval(interval);
+    }
+  }, delay);
+
+  return displayedText;
+};
+
 const sendToAPI = async (text: string) => {
   if (!text.trim()) return;
 
@@ -30,6 +47,14 @@ const sendToAPI = async (text: string) => {
     const responses = await Promise.all(requests);
     model1Response.value = responses[0].data;
     model2Response.value = responses[1].data;
+
+    // Iniciar o efeito de digitação após a resposta
+    const model1Text = typeWriterEffect(responses[0].data);
+    const model2Text = typeWriterEffect(responses[1].data);
+
+    // Definir as respostas gradualmente
+    model1Response.value = model1Text;
+    model2Response.value = model2Text;
   } catch (error) {
     console.error("Erro ao enviar a requisição:", error);
     model1Response.value = "Erro ao obter resposta.";
@@ -66,7 +91,6 @@ watch(() => route.query.text, (newText) => {
     <Prompt @send="sendToAPI" />
   </main>
 </template>
-
 
 <style scoped>
 .container {
