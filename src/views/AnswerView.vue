@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import axios from 'axios';
 import Prompt from '@/components/Input.vue';
 import Card from '@/components/Card.vue';
-
+import Sidebar from '@/components/Sidebar.vue';
 const route = useRoute();
 const model1Response = ref("Aguardando resposta...");
 const model2Response = ref("Aguardando resposta...");
@@ -77,20 +77,24 @@ watch(() => route.query.text, (newText) => {
 </script>
 
 <template>
-  <main class="container">
-    <div class="cards">
-      <div class="card-1">
-        <p>Modelo 1</p>
-        <Card title="Resposta 1" :content="model1Response" />
+  <div style="display: flex;">
+
+    <Sidebar/>
+    <main class="container">
+      <div class="cards">
+        <div class="card-1">
+          <p>Modelo 1</p>
+          <Card title="Resposta 1" :content="model1Response" />
+        </div>
+        <div class="card-2">
+          <p>Modelo 2</p>
+          <Card title="Resposta 2" :content="model2Response" />
+        </div>
       </div>
-      <div class="card-2">
-        <p>Modelo 2</p>
-        <Card title="Resposta 2" :content="model2Response" />
-      </div>
-    </div>
-    <Prompt @send="sendToAPI" />
-  </main>
-</template>
+      <Prompt @send="sendToAPI" />
+    </main>
+  </div>
+  </template>
 
 <style scoped>
 .container {
