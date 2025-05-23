@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import Prompt from '@/components/Input.vue';
 import Card from '@/components/Card.vue';
@@ -27,6 +27,18 @@ const typeWriterEffect = (text: string, delay: number = 15) => {
   return displayedText;
 };
 
+const router = useRouter()
+
+const goToEvaluation = (chosenResponse: any, modelName: string) => {
+  router.push({
+    path: '/evaluate',
+    query: {
+      chosen: chosenResponse.value,
+      model: modelName
+    }
+  });
+};  
+
 const sendToAPI = async (text: string) => {
   if (!text.trim()) return;
 
@@ -45,8 +57,8 @@ const sendToAPI = async (text: string) => {
     );
 
     const responses = await Promise.all(requests);
-    model1Response.value = responses[0].data;
-    model2Response.value = responses[1].data;
+    model1Response.value = typeWriterEffect(responses[0].data).value;
+    model2Response.value = typeWriterEffect(responses[1].data).value;
 
     // Iniciar o efeito de digitação após a resposta
     const model1Text = typeWriterEffect(responses[0].data);
@@ -81,16 +93,18 @@ watch(() => route.query.text, (newText) => {
 
     <Sidebar/>
     <main class="container">
-      <div class="cards">
-        <div class="card-1">
-          <p>Modelo 1</p>
-          <Card title="Resposta 1" :content="model1Response" />
-        </div>
-        <div class="card-2">
-          <p>Modelo 2</p>
-          <Card title="Resposta 2" :content="model2Response" />
-        </div>
-      </div>
+     <div class="cards">
+  <div class="card-1">
+    <p>Modelo 1</p>
+    <Card title="Resposta 1" :content="model1Response" />
+    <button @click="goToEvaluation(model1Response, 'Modelo 1')">Selecionar como melhor</button>
+  </div>
+  <div class="card-2">
+    <p>Modelo 2</p>
+    <Card title="Resposta 2" :content="model2Response" />
+    <button @click="goToEvaluation(model2Response, 'Modelo 2')">Selecionar como melhor</button>
+  </div>
+</div>
       <Prompt @send="sendToAPI" />
     </main>
   </div>
