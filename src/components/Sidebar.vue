@@ -20,15 +20,23 @@ function goToHome() {
 
 <style scoped>
 
-.sidebar {
-    width: 300px;
-    background-color: #1A1A1A; 
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-inline: 20px;
+.layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
+
+.sidebar {
+  width: 300px;
+  background-color: #1A1A1A;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-inline: 20px;
+}
+
 
 .logo {
     width: 100px;
