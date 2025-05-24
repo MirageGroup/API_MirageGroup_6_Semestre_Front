@@ -1,117 +1,186 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import axios from 'axios';
-import Prompt from '@/components/Input.vue';
-import Card from '@/components/Card.vue';
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import axios from 'axios'
+import Prompt from '@/components/Input.vue'
+import Card from '@/components/Card.vue'
+import Sidebar from '@/components/Sidebar.vue'
 
-const route = useRoute();
-const model1Response = ref("Aguardando resposta...");
-const model2Response = ref("Aguardando resposta...");
-const currentText = ref(route.query.text as string || "");
+const route = useRoute()
+const model1Response = ref('Aguardando resposta...')
+const model2Response = ref('Aguardando resposta...')
+const currentText = ref((route.query.text as string) || '')
 
-// Função para simular o efeito de digitação
-const typeWriterEffect = (text: string, delay: number = 15) => {
-  let index = 0;
-  const displayedText = ref("");  // Ref<string>
-
+const typeWriterEffect = (text: string, delay: number = 5) => {
+  let index = 0
+  const displayedText = ref('')
   const interval = setInterval(() => {
     if (index < text.length) {
-      displayedText.value += text[index];  // Acessando o valor da ref com .value
-      index++;
+      displayedText.value += text[index]
+      index++
     } else {
-      clearInterval(interval);
+      clearInterval(interval)
     }
-  }, delay);
+  }, delay)
+  return displayedText
+}
 
-  return displayedText;
-};
+const router = useRouter()
+
+const goToEvaluation = (chosenModel: string) => {
+  const chosenText = localStorage.getItem(chosenModel === 'Modelo 1' ? 'model1' : 'model2') || ''
+  const otherText = localStorage.getItem(chosenModel === 'Modelo 1' ? 'model2' : 'model1') || ''
+  const otherModel = chosenModel === 'Modelo 1' ? 'Modelo 2' : 'Modelo 1'
+
+  localStorage.setItem('eval_chosen', chosenText)
+  localStorage.setItem('eval_model', chosenModel)
+  localStorage.setItem('eval_other', otherText)
+  localStorage.setItem('eval_other_model', otherModel)
+
+  router.push({ path: '/evaluate' })
+}
 
 const sendToAPI = async (text: string) => {
-  if (!text.trim()) return;
+  if (!text.trim()) return
 
-  model1Response.value = "Aguardando resposta...";
-  model2Response.value = "Aguardando resposta...";
+  model1Response.value = 'Aguardando resposta...'
+  model2Response.value = 'Aguardando resposta...'
 
-  const apiUrl = "http://localhost:8090/api/v1/chat/input";
+  const apiUrl = 'http://localhost:8090/api/v1/chat/input'
   const payloads = [
-    { llm_model: "model1", text },
-    { llm_model: "model2", text }
-  ];
+    { llm_model: 'model1', text },
+    { llm_model: 'model2', text },
+  ]
 
   try {
-    const requests = payloads.map(payload =>
-      axios.post(apiUrl, payload)
-    );
+    const requests = payloads.map((payload) => axios.post(apiUrl, payload))
+    const responses = await Promise.all(requests)
 
-    const responses = await Promise.all(requests);
-    model1Response.value = responses[0].data;
-    model2Response.value = responses[1].data;
+    const model1Text = responses[0].data.trimStart()
+    const model2Text = responses[1].data.trimStart()
 
-    // Iniciar o efeito de digitação após a resposta
-    const model1Text = typeWriterEffect(responses[0].data);
-    const model2Text = typeWriterEffect(responses[1].data);
+    localStorage.setItem('model1', model1Text)
+    localStorage.setItem('model2', model2Text)
 
-    // Definir as respostas gradualmente
-    model1Response.value = model1Text;
-    model2Response.value = model2Text;
+    model1Response.value = typeWriterEffect(model1Text)
+    model2Response.value = typeWriterEffect(model2Text)
   } catch (error) {
-    console.error("Erro ao enviar a requisição:", error);
-    model1Response.value = "Erro ao obter resposta.";
-    model2Response.value = "Erro ao obter resposta.";
+    console.error('Erro ao enviar a requisição:', error)
+    model1Response.value = 'Erro ao obter resposta.'
+    model2Response.value = 'Erro ao obter resposta.'
   }
-};
+}
 
 onMounted(() => {
   if (currentText.value) {
-    sendToAPI(currentText.value);
+    sendToAPI(currentText.value)
   }
-});
+})
 
-watch(() => route.query.text, (newText) => {
-  if (newText) {
-    currentText.value = newText as string;
-    sendToAPI(currentText.value);
-  }
-});
+watch(
+  () => route.query.text,
+  (newText) => {
+    if (newText) {
+      currentText.value = newText as string
+      sendToAPI(currentText.value)
+    }
+  },
+)
 </script>
 
 <template>
-  <main class="container">
-    <div class="cards">
-      <div class="card-1">
-        <p>Modelo 1</p>
-        <Card title="Resposta 1" :content="model1Response" />
+  <div class="layout">
+    <Sidebar />
+    <main class="conteudo">
+      <div class="container">
+        <div class="cards">
+          <div class="card-1">
+            <p>Modelo 1</p>
+            <Card title="Resposta 1" :content="model1Response">
+              <template #default>
+                <button @click="goToEvaluation('Modelo 1')" class="select-btn">
+                  Selecionar como melhor
+                </button>
+              </template>
+            </Card>
+          </div>
+          <div class="card-2">
+            <p>Modelo 2</p>
+            <Card title="Resposta 2" :content="model2Response">
+              <template #default>
+                <button @click="goToEvaluation('Modelo 2')" class="select-btn">
+                  Selecionar como melhor
+                </button>
+              </template>
+            </Card>
+          </div>
+        </div>
+        <Prompt @send="sendToAPI" />
       </div>
-      <div class="card-2">
-        <p>Modelo 2</p>
-        <Card title="Resposta 2" :content="model2Response" />
-      </div>
-    </div>
-    <Prompt @send="sendToAPI" />
-  </main>
+    </main>
+  </div>
 </template>
 
 <style scoped>
-.container {
+.layout {
+  display: flex;
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
+}
+.conteudo {
+  flex-grow: 1;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 2em;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #0f0f0f;
+}
+.sidebar {
+  width: 300px;
+  background-color: #1a1a1a;
+  height: 100vh;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-inline: 20px;
+}
+.container {
+  height: 100vh;
+  width: 100%;
   display: grid;
   place-items: center;
   padding-bottom: 2em;
 }
-
 .cards {
   display: flex;
-  width: 70%;
+  width: 86%;
   max-height: 50em;
   justify-content: center;
   padding: 1em;
   margin-bottom: 3em;
+  gap: 2em;
 }
-
-.card-1, .card-2 {
+.card-1,
+.card-2 {
   width: 100%;
   justify-items: start;
+}
+.select-btn {
+  margin-top: 1em;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #00b4f0;
+  color: white;
+  cursor: pointer;
+}
+.select-btn:hover {
+  background-color: #0095c5;
 }
 </style>

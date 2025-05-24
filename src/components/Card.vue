@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   title: String,
   content: String,
-});
+})
 
-const visibleContent = ref("Aguardando resposta..."); 
+const visibleContent = ref('Aguardando resposta...')
 
 watch(
   () => props.content,
   (newContent) => {
     if (newContent) {
-      visibleContent.value = ""; 
+      visibleContent.value = ''
       setTimeout(() => {
-        visibleContent.value = newContent;
-      }, 300);
+        visibleContent.value = newContent
+      }, 300)
     } else {
-      visibleContent.value = "Aguardando resposta..."; 
+      visibleContent.value = 'Aguardando resposta...'
     }
   },
-  { immediate: true } 
-);
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -34,6 +34,9 @@ watch(
         {{ visibleContent }}
       </p>
     </transition>
+    <div class="card-actions">
+      <slot />
+    </div>
   </div>
 </template>
 
@@ -48,6 +51,27 @@ watch(
   background-color: #222629;
   color: white;
   overflow: auto;
+  white-space: pre-wrap;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1em;
+}
+
+.select-btn {
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #00b4f0;
+  color: white;
+  cursor: pointer;
+}
+
+.select-btn:hover {
+  background-color: #0095c5;
 }
 
 /* Estilos do Scroll */
@@ -70,10 +94,12 @@ watch(
 }
 
 /* Animação de fade-in */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 </style>
