@@ -22,9 +22,8 @@ onMounted(() => {
 const saveEvaluation = () => {
   console.log({
     modelo: model.value,
-    resposta: answer.value,
     feedback: feedback.value,
-    critérios: {
+    parametros: {
       relevância: relevance.value,
       coerência: coherence.value,
       clareza: clarity.value,
@@ -60,7 +59,9 @@ const saveEvaluation = () => {
         <div class="superior">
           <div class="bloco1">
             <h2 style="margin-bottom: 1rem">{{ model }} - Avaliação</h2>
-            <p>{{ answer }}</p>
+            <div class="answer-box">
+              {{ answer }}
+            </div>
           </div>
           <div class="sliders">
             <h3 style="margin-bottom: 1rem">Critérios de avaliação</h3>
@@ -104,13 +105,43 @@ const saveEvaluation = () => {
   padding-inline: 20px;
 }
 
+.answer-box {
+  max-height: 20rem;
+  overflow-y: auto;
+  padding: 0.6em;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: #f0f0f0;
+  white-space: pre-wrap;
+}
+
+.answer-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.answer-box::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.answer-box::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.3s ease;
+}
+
+.answer-box::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
 .conteudo {
   flex-grow: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  padding: 2em;
+
   box-sizing: border-box;
   background-color: #0f0f0f;
 }
@@ -120,7 +151,7 @@ const saveEvaluation = () => {
   flex-direction: column;
   color: white;
   padding: 2em;
-  max-width: 900px;
+  max-width: 1200px;
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 12px;

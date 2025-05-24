@@ -51,6 +51,7 @@ watch(
   background-color: #222629;
   color: white;
   overflow: auto;
+  white-space: pre-wrap;
 }
 
 .card-actions {

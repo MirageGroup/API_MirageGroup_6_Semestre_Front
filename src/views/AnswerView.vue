@@ -5,25 +5,23 @@ import axios from 'axios'
 import Prompt from '@/components/Input.vue'
 import Card from '@/components/Card.vue'
 import Sidebar from '@/components/Sidebar.vue'
+
 const route = useRoute()
 const model1Response = ref('Aguardando resposta...')
 const model2Response = ref('Aguardando resposta...')
 const currentText = ref((route.query.text as string) || '')
 
-// Função para simular o efeito de digitação
-const typeWriterEffect = (text: string, delay: number = 15) => {
+const typeWriterEffect = (text: string, delay: number = 5) => {
   let index = 0
-  const displayedText = ref('') // Ref<string>
-
+  const displayedText = ref('')
   const interval = setInterval(() => {
     if (index < text.length) {
-      displayedText.value += text[index] // Acessando o valor da ref com .value
+      displayedText.value += text[index]
       index++
     } else {
       clearInterval(interval)
     }
   }, delay)
-
   return displayedText
 }
 
@@ -58,14 +56,12 @@ const sendToAPI = async (text: string) => {
     const requests = payloads.map((payload) => axios.post(apiUrl, payload))
     const responses = await Promise.all(requests)
 
-    const model1Text = responses[0].data
-    const model2Text = responses[1].data
+    const model1Text = responses[0].data.trimStart()
+    const model2Text = responses[1].data.trimStart()
 
-    // Salvar no localStorage (importante!)
     localStorage.setItem('model1', model1Text)
     localStorage.setItem('model2', model2Text)
 
-    // Mostrar com efeito de digitação
     model1Response.value = typeWriterEffect(model1Text)
     model2Response.value = typeWriterEffect(model2Text)
   } catch (error) {
@@ -101,17 +97,21 @@ watch(
           <div class="card-1">
             <p>Modelo 1</p>
             <Card title="Resposta 1" :content="model1Response">
-              <button @click="goToEvaluation('Modelo 1')" class="select-btn">
-                Selecionar como melhor
-              </button>
+              <template #default>
+                <button @click="goToEvaluation('Modelo 1')" class="select-btn">
+                  Selecionar como melhor
+                </button>
+              </template>
             </Card>
           </div>
           <div class="card-2">
             <p>Modelo 2</p>
             <Card title="Resposta 2" :content="model2Response">
-              <button @click="goToEvaluation('Modelo 2')" class="select-btn">
-                Selecionar como melhor
-              </button>
+              <template #default>
+                <button @click="goToEvaluation('Modelo 2')" class="select-btn">
+                  Selecionar como melhor
+                </button>
+              </template>
             </Card>
           </div>
         </div>
@@ -137,8 +137,8 @@ watch(
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: #0f0f0f;
 }
-
 .sidebar {
   width: 300px;
   background-color: #1a1a1a;
@@ -156,7 +156,6 @@ watch(
   place-items: center;
   padding-bottom: 2em;
 }
-
 .cards {
   display: flex;
   width: 86%;
@@ -164,11 +163,24 @@ watch(
   justify-content: center;
   padding: 1em;
   margin-bottom: 3em;
+  gap: 2em;
 }
-
 .card-1,
 .card-2 {
   width: 100%;
   justify-items: start;
+}
+.select-btn {
+  margin-top: 1em;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #00b4f0;
+  color: white;
+  cursor: pointer;
+}
+.select-btn:hover {
+  background-color: #0095c5;
 }
 </style>
