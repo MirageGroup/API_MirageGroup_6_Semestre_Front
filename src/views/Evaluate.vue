@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Sidebar from '@/components/Sidebar.vue'
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -19,20 +20,35 @@ onMounted(() => {
   model.value = localStorage.getItem('eval_model') || ''
 })
 
-const saveEvaluation = () => {
-  console.log({
-    modelo: model.value,
-    feedback: feedback.value,
-    parametros: {
-      relevância: relevance.value,
-      coerência: coherence.value,
-      clareza: clarity.value,
-      veracidade: truth.value,
-      tom: tone.value,
-    },
-  })
+const saveEvaluation = async () => {
+  const parametros = [
+    { nome: 'Relevância', nota: relevance.value },
+    { nome: 'Coerência', nota: coherence.value },
+    { nome: 'Clareza', nota: clarity.value },
+    { nome: 'Veracidade', nota: truth.value },
+    { nome: 'Tom e Cortesia', nota: tone.value },
+  ]
 
-  alert('Avaliação salva!')
+  const media = (
+    (relevance.value + coherence.value + clarity.value + truth.value + tone.value) /
+    5
+  ).toFixed(2)
+
+  const payload = {
+    model: model.value,
+    data: new Date().toISOString(), // LocalDateTime compatível
+    avaliacaoMedia: parseFloat(media),
+    feedback: feedback.value,
+    parametros: parametros,
+  }
+
+  try {
+    await axios.post('http://localhost:8090/avaliacoes', payload)
+    alert('Avaliação salva com sucesso!')
+  } catch (error) {
+    console.error('Erro ao salvar avaliação:', error)
+    alert('Erro ao salvar avaliação.')
+  }
 
   const other = localStorage.getItem('eval_other')
   const otherModel = localStorage.getItem('eval_other_model')
