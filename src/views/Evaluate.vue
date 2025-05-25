@@ -14,10 +14,14 @@ const coherence = ref(3)
 const clarity = ref(3)
 const truth = ref(3)
 const tone = ref(3)
+const tempoRespostaMs = ref(0)
 
 onMounted(() => {
   answer.value = localStorage.getItem('eval_chosen') || ''
   model.value = localStorage.getItem('eval_model') || ''
+
+  const tempo = localStorage.getItem(model.value === 'Modelo 1' ? 'model1_time' : 'model2_time')
+  tempoRespostaMs.value = tempo ? parseFloat(tempo) : 0
 })
 
 const saveEvaluation = async () => {
@@ -36,11 +40,13 @@ const saveEvaluation = async () => {
 
   const payload = {
     model: model.value,
-    data: new Date().toISOString(), // LocalDateTime compatível
+    data: new Date().toISOString(),
     avaliacaoMedia: parseFloat(media),
     feedback: feedback.value,
     parametros: parametros,
+    tempoRespostaMs: parseFloat(tempoRespostaMs.value.toFixed(6)),
   }
+  console.log('Payload enviado:', payload)
 
   try {
     await axios.post('http://localhost:8090/avaliacoes', payload)

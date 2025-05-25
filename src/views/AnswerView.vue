@@ -56,14 +56,24 @@ const sendToAPI = async (text: string) => {
     const requests = payloads.map((payload) => axios.post(apiUrl, payload))
     const responses = await Promise.all(requests)
 
-    const model1Text = responses[0].data.trimStart()
-    const model2Text = responses[1].data.trimStart()
+    // console.log(responses[0].data.response.join(''))
+
+    const model1Text = responses[0].data.response.join('').trim()
+    const model2Text = responses[1].data.response.join('').trim()
+
+    const tempoDeExecucaoModel1 = responses[0].data.tempo_execucao
+    const tempoDeExecucaoModel2 = responses[1].data.tempo_execucao
+
+    console.log(tempoDeExecucaoModel1, tempoDeExecucaoModel2)
+
+    model1Response.value = typeWriterEffect(model1Text)
+    model2Response.value = typeWriterEffect(model2Text)
 
     localStorage.setItem('model1', model1Text)
     localStorage.setItem('model2', model2Text)
 
-    model1Response.value = typeWriterEffect(model1Text)
-    model2Response.value = typeWriterEffect(model2Text)
+    localStorage.setItem('model1_time', tempoDeExecucaoModel1.toString())
+    localStorage.setItem('model2_time', tempoDeExecucaoModel2.toString())
   } catch (error) {
     console.error('Erro ao enviar a requisição:', error)
     model1Response.value = 'Erro ao obter resposta.'
